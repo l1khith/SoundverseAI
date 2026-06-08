@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme — MaterialTheme delegates to Compose -->
+    <style name="Theme.SoundverseAI" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:statusBarColor">#FF130924</item>
+        <item name="android:navigationBarColor">#FF09090E</item>
+        <item name="android:windowLightStatusBar">false</item>
+    </style>
+</resources>
