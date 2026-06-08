@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "000000000000",
-    "project_id": "soundverse-ai-demo",
-    "storage_bucket": "soundverse-ai-demo.appspot.com"
+    "project_number": "469495596035",
+    "project_id": "soundverseai-cb698",
+    "storage_bucket": "soundverseai-cb698.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:000000000000:android:0000000000000000000000",
+        "mobilesdk_app_id": "1:469495596035:android:662ee077e03f6f04467a36",
         "android_client_info": {
           "package_name": "com.l1kiiiiii.soundverseai"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDEMO_KEY_REPLACE_WITH_REAL_KEY_FROM_FIREBASE_CONSOLE"
+          "current_key": "AIzaSyCLq8rpNyOw6DHaCPEFDkHkD-trUFdpwZM"
         }
       ],
       "services": {

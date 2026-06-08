@@ -58,7 +58,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.l1kiiiiii.soundverseai.ui.components.ElasticNavigationContainer
 import com.l1kiiiiii.soundverseai.ui.theme.BackgroundBottom
 import com.l1kiiiiii.soundverseai.ui.theme.BackgroundTop
 import com.l1kiiiiii.soundverseai.ui.theme.BottomBarSurface
@@ -91,6 +90,7 @@ import com.l1kiiiiii.soundverseai.viewmodel.SoundverseViewModel
 @Composable
 fun CreateBlankStateScreen(
     viewModel: SoundverseViewModel,
+    onProfileMenuClick: () -> Unit,
     onTryNowClicked: () -> Unit,
     onNotificationClicked: () -> Unit
 ) {
@@ -105,72 +105,73 @@ fun CreateBlankStateScreen(
         }
     }
 
-    ElasticNavigationContainer {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colorStops = arrayOf(
-                            0.0f to BackgroundTop,
-                            0.6f to BackgroundBottom,
-                            1.0f to BackgroundBottom
-                        )
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(
+                Brush.verticalGradient(
+                    colorStops = arrayOf(
+                        0.0f to BackgroundTop,
+                        0.6f to BackgroundBottom,
+                        1.0f to BackgroundBottom
                     )
                 )
+            )
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding()
-            ) {
-                // ── Top Bar ──────────────────────────────────────────────
-                ChatTopBar(onNotificationClicked = onNotificationClicked)
+            // ── Top Bar ──────────────────────────────────────────────
+            ChatTopBar(
+                onProfileMenuClick    = onProfileMenuClick,
+                onNotificationClicked = onNotificationClicked
+            )
 
-                // ── Chat Messages ─────────────────────────────────────────
-                LazyColumn(
-                    modifier = Modifier
-                        .weight(1f)
-                        .fillMaxWidth(),
-                    state = lazyListState,
-                    contentPadding = PaddingValues(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 24.dp,
-                        bottom = 16.dp
-                    ),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-                    items(
-                        items = chatMessages,
-                        key   = { it.id }
-                    ) { message ->
-                        AnimatedVisibility(
-                            visible = true,
-                            enter   = fadeIn(tween(300)) + slideInVertically(
-                                animationSpec = tween(300),
-                                initialOffsetY = { it / 2 }
-                            )
-                        ) {
-                            ChatBubble(
-                                message       = message,
-                                onTryNowClick = onTryNowClicked
-                            )
-                        }
+            // ── Chat Messages ─────────────────────────────────────────
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                state = lazyListState,
+                contentPadding = PaddingValues(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 24.dp,
+                    bottom = 16.dp
+                ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                items(
+                    items = chatMessages,
+                    key   = { it.id }
+                ) { message ->
+                    AnimatedVisibility(
+                        visible = true,
+                        enter   = fadeIn(tween(300)) + slideInVertically(
+                            animationSpec = tween(300),
+                            initialOffsetY = { it / 2 }
+                        )
+                    ) {
+                        ChatBubble(
+                            message       = message,
+                            onTryNowClick = onTryNowClicked
+                        )
                     }
                 }
-
-                // ── Bottom Input Tray ─────────────────────────────────────
-                ChatInputTray(
-                    value     = inputText,
-                    onValueChange = viewModel::onInputChanged,
-                    onSend    = viewModel::sendMessage,
-                    modifier  = Modifier
-                        .fillMaxWidth()
-                        .imePadding()
-                        .navigationBarsPadding()
-                )
             }
+
+            // ── Bottom Input Tray ─────────────────────────────────────
+            ChatInputTray(
+                value         = inputText,
+                onValueChange = viewModel::onInputChanged,
+                onSend        = viewModel::sendMessage,
+                modifier      = Modifier
+                    .fillMaxWidth()
+                    .imePadding()
+                    .navigationBarsPadding()
+            )
         }
     }
 }
@@ -180,7 +181,10 @@ fun CreateBlankStateScreen(
 // ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
-private fun ChatTopBar(onNotificationClicked: () -> Unit) {
+private fun ChatTopBar(
+    onProfileMenuClick: () -> Unit,
+    onNotificationClicked: () -> Unit
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -188,18 +192,23 @@ private fun ChatTopBar(onNotificationClicked: () -> Unit) {
             .padding(horizontal = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // Hamburger / menu icon (profile trigger handled by ElasticNavigationContainer swipe)
+        // Hamburger / menu icon — tapping opens the profile drawer
         Box(
             modifier = Modifier
                 .size(40.dp)
                 .clip(CircleShape)
-                .background(CardSurface.copy(alpha = 0.6f)),
+                .background(CardSurface.copy(alpha = 0.6f))
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication        = null,
+                    onClick           = onProfileMenuClick
+                ),
             contentAlignment = Alignment.Center
         ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.padding(8.dp)
+                verticalArrangement    = Arrangement.spacedBy(4.dp),
+                horizontalAlignment    = Alignment.CenterHorizontally,
+                modifier               = Modifier.padding(8.dp)
             ) {
                 repeat(3) {
                     Box(

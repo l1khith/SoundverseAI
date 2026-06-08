@@ -10,10 +10,16 @@
               <option name="connection">
                 <ConnectionSetting>
                   <option name="appId" value="com.l1kiiiiii.soundverseai" />
-                  <option name="mobileSdkAppId" value="1:000000000000:android:0000000000000000000000" />
-                  <option name="projectId" value="soundverse-ai-demo" />
-                  <option name="projectNumber" value="000000000000" />
+                  <option name="mobileSdkAppId" value="1:469495596035:android:662ee077e03f6f04467a36" />
+                  <option name="projectId" value="soundverseai-cb698" />
+                  <option name="projectNumber" value="469495596035" />
                 </ConnectionSetting>
+              </option>
+              <option name="failureTypes">
+                <list>
+                  <option value="FATAL" />
+                  <option value="NON_FATAL" />
+                </list>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="THIRTY_DAYS" />
