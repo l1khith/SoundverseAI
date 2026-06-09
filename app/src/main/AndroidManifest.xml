@@ -4,12 +4,16 @@
 
     <!-- Notification runtime permission (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <!-- Internet for ExoPlayer streaming -->
+
+    <!-- Internet for ExoPlayer streaming and FCM -->
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Required for Instagram Stories share intent -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
-        android:maxSdkVersion="32" />
-    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <!--
+        READ_EXTERNAL_STORAGE / READ_MEDIA_VIDEO were previously declared for
+        Instagram Stories sharing. Our share implementation uses a PackageManager
+        intent launch (no direct file read), so these broad permissions are not
+        needed and have been removed to satisfy Play Policy requirements.
+    -->
 
     <application
         android:allowBackup="true"
@@ -22,10 +26,14 @@
         android:usesCleartextTraffic="true"
         android:theme="@style/Theme.SoundverseAI">
 
+        <!--
+            android:label is intentionally omitted here — the application-level
+            label above already supplies the launcher title. Declaring it again
+            on the activity would be redundant (lint: RedundantLabel).
+        -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.SoundverseAI"
             android:windowSoftInputMode="adjustResize"
             android:launchMode="singleTop">
@@ -36,8 +44,18 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
-            <!-- Deep link intent filter: soundverse://export -->
-            <intent-filter android:autoVerify="true">
+            <!--
+                Custom URI scheme deep link: soundverse://export
+                android:autoVerify is intentionally omitted — autoVerify is only
+                valid for Android App Links (https:// scheme). A custom scheme
+                like soundverse:// does not go through Digital Asset Links
+                verification and does not need that attribute.
+
+                tools:ignore="AppLinkUrlError" suppresses the lint rule that
+                expects an http/https scheme whenever a VIEW intent filter is
+                declared, which does not apply to custom URI schemes.
+            -->
+            <intent-filter tools:ignore="AppLinkUrlError">
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
@@ -47,7 +65,7 @@
             </intent-filter>
         </activity>
 
-        <!-- Firebase Messaging Service -->
+        <!-- Firebase Cloud Messaging service -->
         <service
             android:name=".notification.SoundverseMessagingService"
             android:exported="false">
@@ -56,10 +74,16 @@
             </intent-filter>
         </service>
 
-        <!-- FCM default channel -->
+        <!--
+            FCM default notification channel.
+            "soundverse_channel" matches CHANNEL_ID in SoundverseMessagingService.
+            tools:ignore="Typos" suppresses false-positive spell-checker warnings
+            on the brand name "Soundverse".
+        -->
         <meta-data
             android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="soundverse_channel" />
+            android:value="soundverse_channel"
+            tools:ignore="Typos" />
 
     </application>
 

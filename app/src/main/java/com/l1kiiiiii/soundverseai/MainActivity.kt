@@ -291,7 +291,8 @@ fun SoundverseAppLayout(
 
                 composable(Screen.ExportState.route) {
                     ExportStateScreen(
-                        onBackPressed = { navController.popBackStack() }
+                        onBackPressed = { navController.popBackStack() },
+                        viewModel     = viewModel
                     )
                 }
             }

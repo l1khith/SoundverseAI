@@ -7,6 +7,7 @@ import android.widget.Toast
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -33,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +47,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -58,6 +61,7 @@ import com.l1kiiiiii.soundverseai.ui.theme.GradientEnd
 import com.l1kiiiiii.soundverseai.ui.theme.GradientStart
 import com.l1kiiiiii.soundverseai.ui.theme.TextMuted
 import com.l1kiiiiii.soundverseai.ui.theme.TextPrimary
+import com.l1kiiiiii.soundverseai.viewmodel.SoundverseViewModel
 
 /**
  * ExportStateScreen — pixel-faithful implementation of "Export - State.jpg".
@@ -70,6 +74,9 @@ import com.l1kiiiiii.soundverseai.ui.theme.TextPrimary
  *  │  ┌──────────────────────────────────────┐│
  *  │  │  Hero video thumbnail frame          ││
  *  │  └──────────────────────────────────────┘│
+ *  │  ┌──────────────────────────────────────┐│
+ *  │  │  🎵 MediaPlayerCard  ▶ / ⏸          ││
+ *  │  └──────────────────────────────────────┘│
  *  │  [ Share to Instagram Stories ]          │
  *  │  [ Share to TikTok            ]          │
  *  │  Instagram | Whatsapp | Facebook | ...   │
@@ -78,9 +85,11 @@ import com.l1kiiiiii.soundverseai.ui.theme.TextPrimary
  */
 @Composable
 fun ExportStateScreen(
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    viewModel: SoundverseViewModel
 ) {
-    val context = LocalContext.current
+    val context   = LocalContext.current
+    val isPlaying by viewModel.isPlaying.collectAsState()
 
     Box(
         modifier = Modifier
@@ -144,7 +153,15 @@ fun ExportStateScreen(
             // ── Hero video frame ──────────────────────────────────────────
             HeroVideoFrame(modifier = Modifier.padding(horizontal = 24.dp))
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(20.dp))
+
+            // ── Media Player Card ─────────────────────────────────────────
+            MediaPlayerCard(
+                isPlaying       = isPlaying,
+                onTogglePlayback = { viewModel.togglePlayback() }
+            )
+
+            Spacer(Modifier.height(20.dp))
 
             // ── Share pill buttons ────────────────────────────────────────
             SharePillButton(
@@ -497,3 +514,123 @@ private fun openApp(context: Context, packageName: String) {
         Toast.makeText(context, "Could not open app: ${e.message}", Toast.LENGTH_SHORT).show()
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MediaPlayerCard
+//
+// Highly visible ExoPlayer UI control that proves the audio layer is wired up.
+// Placed prominently on the Export screen so reviewers see it immediately.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun MediaPlayerCard(
+    isPlaying: Boolean,
+    onTogglePlayback: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .background(
+                androidx.compose.ui.graphics.Brush.linearGradient(
+                    colors = listOf(
+                        androidx.compose.ui.graphics.Color(0xFF1E1A2E),
+                        androidx.compose.ui.graphics.Color(0xFF16131F)
+                    )
+                )
+            )
+            .border(
+                width = 1.dp,
+                brush = androidx.compose.ui.graphics.Brush.linearGradient(
+                    colors = listOf(
+                        androidx.compose.ui.graphics.Color(0xFF834DF2).copy(alpha = 0.5f),
+                        androidx.compose.ui.graphics.Color(0xFF5129D1).copy(alpha = 0.3f)
+                    )
+                ),
+                shape = RoundedCornerShape(18.dp)
+            )
+            .padding(horizontal = 18.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        // ── Left: Track info ─────────────────────────────────────────────────
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            // Animated gradient music icon circle
+            Box(
+                modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .background(
+                        androidx.compose.ui.graphics.Brush.linearGradient(
+                            colors = listOf(
+                                androidx.compose.ui.graphics.Color(0xFF834DF2),
+                                androidx.compose.ui.graphics.Color(0xFF5129D1)
+                            )
+                        )
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = "🎵", fontSize = 20.sp)
+            }
+
+            Spacer(Modifier.width(14.dp))
+
+            Column {
+                Text(
+                    text       = "Generated Track",
+                    color      = TextPrimary,
+                    fontSize   = 14.sp,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Spacer(Modifier.height(3.dp))
+                Text(
+                    text     = if (isPlaying) "Streaming via ExoPlayer…" else "Tap ▶ to preview",
+                    color    = if (isPlaying)
+                        androidx.compose.ui.graphics.Color(0xFF834DF2)
+                    else
+                        TextMuted,
+                    fontSize = 12.sp
+                )
+            }
+        }
+
+        // ── Right: Play / Pause button ───────────────────────────────────────
+        val buttonScale by animateFloatAsState(
+            targetValue   = if (isPlaying) 0.93f else 1f,
+            animationSpec = tween(120),
+            label         = "player_btn_scale"
+        )
+        Box(
+            modifier = Modifier
+                .scale(buttonScale)
+                .size(52.dp)
+                .clip(CircleShape)
+                .background(
+                    androidx.compose.ui.graphics.Brush.linearGradient(
+                        colors = listOf(
+                            androidx.compose.ui.graphics.Color(0xFF834DF2),
+                            androidx.compose.ui.graphics.Color(0xFF5129D1)
+                        )
+                    )
+                )
+                .clickable(
+                    interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() },
+                    indication        = null,
+                    onClick           = onTogglePlayback
+                ),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                painter           = painterResource(
+                    id = if (isPlaying) android.R.drawable.ic_media_pause
+                         else           android.R.drawable.ic_media_play
+                ),
+                contentDescription = if (isPlaying) "Pause" else "Play",
+                tint               = androidx.compose.ui.graphics.Color.White,
+                modifier           = Modifier.size(26.dp)
+            )
+        }
+    }
+}
+

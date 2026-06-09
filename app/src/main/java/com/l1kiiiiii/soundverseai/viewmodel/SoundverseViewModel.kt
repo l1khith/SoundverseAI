@@ -53,8 +53,9 @@ class SoundverseViewModel(application: Application) : AndroidViewModel(applicati
     val inputText: StateFlow<String> = _inputText.asStateFlow()
 
     // ── Playback controls ─────────────────────────────────────────────────────
-    fun play()  = playbackManager.play()
-    fun pause() = playbackManager.pause()
+    fun play()           = playbackManager.play()
+    fun pause()          = playbackManager.pause()
+    fun togglePlayback() = playbackManager.togglePlayback()
 
     // ── Dialog controls ───────────────────────────────────────────────────────
     fun showForegroundNotificationDialog()   { _showForegroundDialog.value = true  }
